@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Motion Reel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #050505;
+    --white: #f5f0e8;
+    --acid: #c8f500;
+    --orange: #ff4d00;
+    --mid: #1a1a1a;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed; width: 12px; height: 12px;
+    background: var(--acid); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    position: fixed; width: 40px; height: 40px;
+    border: 1px solid rgba(200,245,0,0.5); border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease, width 0.3s, height 0.3s;
+  }
+
+  /* Scenes */
+  .scene {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.05s;
+  }
+  .scene.active { opacity: 1; pointer-events: all; }
+
+  /* Noise overlay */
+  .noise {
+    position: fixed; inset: 0; z-index: 100; pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed; bottom: 0; left: 0; height: 2px;
+    background: var(--acid); z-index: 200;
+    transition: width 0.1s linear;
+  }
+
+  /* Skip / replay */
+  .ctrl {
+    position: fixed; bottom: 24px; right: 28px; z-index: 300;
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: rgba(245,240,232,0.4); letter-spacing: 0.1em;
+    cursor: none; user-select: none;
+  }
+  .ctrl span { color: var(--acid); }
+
+  /* ─── SCENE 1: Intro glitch ─── */
+  #s1 { background: var(--black); flex-direction: column; gap: 0; }
+  .glitch-wrap { position: relative; overflow: hidden; }
+  .glitch-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 16vw, 180px);
+    color: var(--white); line-height: 0.88;
+    letter-spacing: -0.01em;
+    position: relative;
+    animation: glitch-main 0.08s steps(1) infinite;
+  }
+  .glitch-title::before, .glitch-title::after {
+    content: attr(data-text);
+    position: absolute; inset: 0;
+    font-family: inherit; font-size: inherit; color: inherit; line-height: inherit;
+  }
+  .glitch-title::before {
+    color: var(--orange); clip-path: inset(30% 0 50% 0);
+    animation: glitch-before 0.12s steps(1) infinite;
+  }
+  .glitch-title::after {
+    color: var(--acid); clip-path: inset(60% 0 10% 0);
+    animation: glitch-after 0.1s steps(1) infinite;
+  }
+  @keyframes glitch-main {
+    0%,94%,100% { transform: none; }
+    95% { transform: translateX(3px) skewX(1deg); }
+    97% { transform: translateX(-3px); }
+  }
+  @keyframes glitch-before {
+    0%,92%,100% { transform: none; opacity: 0; }
+    93% { transform: translateX(-6px); opacity: 1; }
+    96% { transform: translateX(4px); opacity: 1; }
+    99% { opacity: 0; }
+  }
+  @keyframes glitch-after {
+    0%,88%,100% { transform: none; opacity: 0; }
+    89% { transform: translateX(8px); opacity: 1; }
+    94% { transform: translateX(-2px); opacity: 1; }
+    97% { opacity: 0; }
+  }
+  .s1-sub {
+    font-family: 'Space Mono', monospace; font-size: 13px;
+    color: var(--acid); letter-spacing: 0.25em; text-transform: uppercase;
+    margin-top: 20px;
+    animation: flicker 1.2s steps(1) infinite;
+  }
+  @keyframes flicker {
+    0%,80%,100% { opacity: 1; }
+    85% { opacity: 0.2; }
+    90% { opacity: 1; }
+    95% { opacity: 0.4; }
+  }
+  .s1-line {
+    width: 0; height: 2px; background: var(--orange);
+    margin-top: 16px;
+    animation: grow-line 1s cubic-bezier(0.77,0,0.18,1) 0.3s forwards;
+  }
+  @keyframes grow-line { to { width: 260px; } }
+
+  /* ─── SCENE 2: MARKETING ─── */
+  #s2 { background: var(--acid); overflow: hidden; }
+  .s2-bg-text {
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(120px, 22vw, 280px);
+    color: rgba(5,5,5,0.07); white-space: nowrap;
+    animation: scroll-bg 8s linear infinite;
+    top: 50%; transform: translateY(-50%);
+    letter-spacing: -0.02em;
+  }
+  @keyframes scroll-bg {
+    from { transform: translateY(-50%) translateX(0); }
+    to { transform: translateY(-50%) translateX(-50%); }
+  }
+  .s2-content { position: relative; z-index: 2; text-align: center; }
+  .s2-eyebrow {
+    font-family: 'Space Mono', monospace; font-size: 12px;
+    color: var(--black); letter-spacing: 0.3em; opacity: 0.6;
+    margin-bottom: 12px;
+  }
+  .s2-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 14vw, 160px);
+    color: var(--black); line-height: 0.85;
+    animation: stamp-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes stamp-in {
+    from { transform: scale(1.4) rotate(-3deg); opacity: 0; }
+    to { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .s2-stat {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+    background: var(--black); color: var(--acid);
+    padding: 6px 18px; margin-top: 20px;
+    animation: slide-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.3s both;
+  }
+  @keyframes slide-up {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ─── SCENE 3: DESIGN ─── */
+  #s3 { background: var(--black); }
+  .s3-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+    width: min(700px, 90vw); height: min(480px, 85vh);
+  }
+  .s3-cell {
+    background: var(--mid);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+    animation: cell-appear 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .s3-cell:nth-child(1) { animation-delay: 0s; background: var(--orange); }
+  .s3-cell:nth-child(2) { animation-delay: 0.1s; }
+  .s3-cell:nth-child(3) { animation-delay: 0.2s; }
+  .s3-cell:nth-child(4) { animation-delay: 0.3s; background: var(--acid); }
+  @keyframes cell-appear {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0 0% 0 0); }
+  }
+  .s3-cell-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 8vw, 80px); letter-spacing: -0.02em;
+    color: var(--white); mix-blend-mode: difference;
+    position: relative; z-index: 2;
+  }
+  .s3-cell:nth-child(1) .s3-cell-label { color: var(--black); mix-blend-mode: normal; font-size: clamp(28px, 5vw, 56px); }
+  .s3-cell:nth-child(4) .s3-cell-label { color: var(--black); mix-blend-mode: normal; font-size: clamp(28px, 5vw, 56px); }
+  .s3-circle {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(245,240,232,0.15);
+    animation: spin 12s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── SCENE 4: GROWTH ─── */
+  #s4 { background: var(--black); flex-direction: column; gap: 8px; }
+  .s4-counter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(100px, 20vw, 220px);
+    color: var(--white); line-height: 1;
+    position: relative;
+  }
+  .s4-counter .accent { color: var(--acid); }
+  .s4-label {
+    font-family: 'Space Mono', monospace; font-size: 13px;
+    color: rgba(245,240,232,0.5); letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  .s4-bars {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 80px; margin-top: 20px;
+  }
+  .s4-bar {
+    width: 18px; background: var(--mid);
+    border-radius: 2px 2px 0 0;
+    animation: bar-grow 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .s4-bar:nth-child(1) { --h: 30%; animation-delay: 0s; }
+  .s4-bar:nth-child(2) { --h: 50%; animation-delay: 0.05s; }
+  .s4-bar:nth-child(3) { --h: 40%; animation-delay: 0.1s; }
+  .s4-bar:nth-child(4) { --h: 65%; animation-delay: 0.15s; }
+  .s4-bar:nth-child(5) { --h: 55%; animation-delay: 0.2s; background: var(--orange); }
+  .s4-bar:nth-child(6) { --h: 80%; animation-delay: 0.25s; }
+  .s4-bar:nth-child(7) { --h: 70%; animation-delay: 0.3s; }
+  .s4-bar:nth-child(8) { --h: 90%; animation-delay: 0.35s; background: var(--acid); }
+  .s4-bar:nth-child(9) { --h: 85%; animation-delay: 0.4s; }
+  .s4-bar:nth-child(10) { --h: 100%; animation-delay: 0.45s; background: var(--acid); }
+  @keyframes bar-grow {
+    from { height: 0; }
+    to { height: var(--h); }
+  }
+
+  /* ─── SCENE 5: CTA ─── */
+  #s5 { background: var(--white); flex-direction: column; gap: 0; text-align: center; }
+  .s5-tag {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: rgba(5,5,5,0.4); letter-spacing: 0.3em; margin-bottom: 16px;
+  }
+  .s5-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(60px, 12vw, 140px);
+    color: var(--black); line-height: 0.88;
+    animation: split-in 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes split-in {
+    from { letter-spacing: 0.5em; opacity: 0; }
+    to { letter-spacing: -0.01em; opacity: 1; }
+  }
+  .s5-btn {
+    display: inline-block; margin-top: 32px;
+    font-family: 'Space Mono', monospace; font-size: 13px;
+    background: var(--black); color: var(--acid);
+    padding: 14px 36px; letter-spacing: 0.15em; text-transform: uppercase;
+    border: none; cursor: none;
+    animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;
+    position: relative; overflow: hidden;
+  }
+  .s5-btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--acid); transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.77,0,0.18,1);
+    z-index: -1;
+  }
+  .s5-btn:hover::before { transform: scaleX(1); }
+  .s5-btn:hover { color: var(--black); }
+  @keyframes pop-in {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .s5-marquee {
+    position: absolute; bottom: 32px; left: 0; right: 0;
+    overflow: hidden; white-space: nowrap;
+    font-family: 'Bebas Neue', sans-serif; font-size: 14px;
+    color: rgba(5,5,5,0.2); letter-spacing: 0.15em;
+  }
+  .s5-marquee-inner {
+    display: inline-block;
+    animation: marquee 10s linear infinite;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Scene transition flash */
+  .flash {
+    position: fixed; inset: 0; z-index: 500;
+    background: var(--white); opacity: 0; pointer-events: none;
+  }
+  .flash.go { animation: flash-anim 0.25s ease forwards; }
+  @keyframes flash-anim {
+    0% { opacity: 0.7; }
+    100% { opacity: 0; }
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .s3-grid { grid-template-columns: 1fr; grid-template-rows: repeat(4,1fr); height: 90vh; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="noise"></div>
+<div class="progress-bar" id="progressBar"></div>
+<div class="flash" id="flash"></div>
+<div class="ctrl" id="ctrl">PRESS <span>SPACE</span> TO ADVANCE</div>
+
+<!-- SCENE 1 -->
+<div class="scene active" id="s1">
+  <div style="text-align:center;">
+    <div class="glitch-wrap">
+      <div class="glitch-title" data-text="MARKETING">MARKETING</div>
+      <div class="glitch-title" data-text="+ DESIGN">&amp; DESIGN</div>
+    </div>
+    <div class="s1-sub">The secret to unstoppable growth</div>
+    <div class="s1-line"></div>
+  </div>
+</div>
+
+<!-- SCENE 2 -->
+<div class="scene" id="s2">
+  <div class="s2-bg-text">REACH&nbsp;&nbsp;CONVERT&nbsp;&nbsp;GROW&nbsp;&nbsp;REACH&nbsp;&nbsp;CONVERT&nbsp;&nbsp;GROW&nbsp;&nbsp;REACH&nbsp;&nbsp;CONVERT&nbsp;&nbsp;GROW&nbsp;&nbsp;</div>
+  <div class="s2-content">
+    <div class="s2-eyebrow">Smart Strategy</div>
+    <div class="s2-headline">SMART<br>MARKETING</div>
+    <div class="s2-stat">🎯 Turn Attention Into Action</div>
+  </div>
+</div>
+
+<!-- SCENE 3 -->
+<div class="scene" id="s3">
+  <div class="s3-grid">
+    <div class="s3-cell">
+      <div class="s3-circle" style="width:180px;height:180px;top:-40px;left:-40px;"></div>
+      <div class="s3-cell-label">IRRESISTIBLE<br>DESIGN</div>
+    </div>
+    <div class="s3-cell">
+      <div class="s3-circle" style="width:120px;height:120px;bottom:20px;right:20px;animation-direction:reverse;"></div>
+      <div class="s3-cell-label" style="font-size:clamp(60px,11vw,120px);">🎨</div>
+    </div>
+    <div class="s3-cell">
+      <div class="s3-cell-label" style="font-size:clamp(60px,11vw,120px);">⚡</div>
+    </div>
+    <div class="s3-cell">
+      <div class="s3-circle" style="width:160px;height:160px;top:-30px;right:-30px;"></div>
+      <div class="s3-cell-label">VISUAL<br>IDENTITY</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 4 -->
+<div class="scene" id="s4">
+  <div style="display:flex;flex-direction:column;align-items:center;">
+    <div class="s4-counter"><span class="accent" id="counter">0</span><span style="color:var(--orange)">%</span></div>
+    <div class="s4-label">Real Growth. Real Results.</div>
+    <div class="s4-bars" id="bars">
+      <div class="s4-bar"></div>
+      <div class="s4-bar"></div>
+      <div class="s4-bar"></div>
+      <div class="s4-bar"></div>
+      <div class="s4-bar"></div>
+      <div class="s4-bar"></div>
+      <div class="s4-bar"></div>
+      <div class="s4-bar"></div>
+      <div class="s4-bar"></div>
+      <div class="s4-bar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 5 -->
+<div class="scene" id="s5">
+  <div class="s5-tag">— Let's make it happen —</div>
+  <div class="s5-big">LET'S BUILD<br>YOUR BRAND.</div>
+  <button class="s5-btn" onclick="restartReel()">▶ PLAY AGAIN</button>
+  <div class="s5-marquee">
+    <span class="s5-marquee-inner">
+      STRATEGY&nbsp;&nbsp;·&nbsp;&nbsp;DESIGN&nbsp;&nbsp;·&nbsp;&nbsp;GROWTH&nbsp;&nbsp;·&nbsp;&nbsp;BRANDING&nbsp;&nbsp;·&nbsp;&nbsp;MOTION&nbsp;&nbsp;·&nbsp;&nbsp;IDENTITY&nbsp;&nbsp;·&nbsp;&nbsp;
+      STRATEGY&nbsp;&nbsp;·&nbsp;&nbsp;DESIGN&nbsp;&nbsp;·&nbsp;&nbsp;GROWTH&nbsp;&nbsp;·&nbsp;&nbsp;BRANDING&nbsp;&nbsp;·&nbsp;&nbsp;MOTION&nbsp;&nbsp;·&nbsp;&nbsp;IDENTITY&nbsp;&nbsp;·&nbsp;&nbsp;
+    </span>
+  </div>
+</div>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    setTimeout(() => {
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    }, 60);
+  });
+
+  // Scene management
+  const scenes = ['s1','s2','s3','s4','s5'];
+  let current = 0;
+  const DURATIONS = [3000, 3000, 3000, 3500, 99999];
+  let timer = null;
+  const progressBar = document.getElementById('progressBar');
+  const flash = document.getElementById('flash');
+
+  function showScene(idx) {
+    scenes.forEach((id, i) => {
+      document.getElementById(id).classList.toggle('active', i === idx);
+    });
+    current = idx;
+    updateProgress();
+    if (idx === 3) startCounter();
+    // Auto-advance
+    clearTimeout(timer);
+    if (DURATIONS[idx] < 99999) {
+      timer = setTimeout(() => advance(), DURATIONS[idx]);
+    }
+  }
+
+  function updateProgress() {
+    const pct = ((current + 1) / scenes.length) * 100;
+    progressBar.style.width = pct + '%';
+  }
+
+  function advance() {
+    if (current < scenes.length - 1) {
+      flash.classList.remove('go');
+      void flash.offsetWidth;
+      flash.classList.add('go');
+      setTimeout(() => showScene(current + 1), 80);
+    }
+  }
+
+  function restartReel() {
+    flash.classList.remove('go');
+    void flash.offsetWidth;
+    flash.classList.add('go');
+    setTimeout(() => showScene(0), 80);
+  }
+
+  // Counter animation for scene 4
+  function startCounter() {
+    const el = document.getElementById('counter');
+    let val = 0;
+    const target = 347;
+    const step = () => {
+      val += Math.ceil((target - val) / 12);
+      if (val >= target) val = target;
+      el.textContent = val;
+      if (val < target) requestAnimationFrame(step);
+    };
+    step();
+  }
+
+  // Keyboard & click control
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'ArrowRight') { clearTimeout(timer); advance(); }
+    if (e.code === 'ArrowLeft' && current > 0) { clearTimeout(timer); flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go'); setTimeout(() => showScene(current - 1), 80); }
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('button')) advance();
+  });
+
+  // Ctrl hint update
+  const ctrl = document.getElementById('ctrl');
+  setInterval(() => {
+    if (current === scenes.length - 1) ctrl.innerHTML = 'CLICK TO <span>RESTART</span>';
+  }, 500);
+
+  // Start
+  showScene(0);
+</script>
+</body>
+</html>
